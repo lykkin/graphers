@@ -6,8 +6,13 @@ var buckets = new Array(BUCKET_COUNT)
 var bucketDivs
 
 function createQuarticSample() {
-  var sample = Math.random() * BUCKET_COUNT * BUCKET_COUNT * BUCKET_COUNT * BUCKET_COUNT;
+  var sample = Math.random() * BUCKET_COUNT * BUCKET_COUNT * BUCKET_COUNT * BUCKET_COUNT
   return Math.sqrt(Math.sqrt(sample))
+}
+
+function createSquareSample() {
+  var sample = Math.random() * BUCKET_COUNT * BUCKET_COUNT
+  return Math.sqrt(sample)
 }
 
 function createSqrtSample() {
@@ -25,6 +30,7 @@ for (var i = 0; i < BUCKET_COUNT; i++) {
 for (var k = 0; k < GENERATIONS; k++) {
   for (var i = 0; i < SAMPLE_COUNT; i++) {
   var sample = createQuarticSample()
+  //var sample = createSquareSample()
   //var sample = createSqrtSample()
 	for (var j = 0; j < BUCKET_COUNT; j++) {
 	  sample -= buckets[j].width
@@ -78,7 +84,7 @@ window.onload = function() {
       style: produceStyle(
         Math.ceil(start * MAX_WIDTH), //left side
         Math.ceil((start + e.width / totalWidth) * MAX_WIDTH), //right side
-        Math.ceil((SAMPLE_COUNT / BUCKET_COUNT) / (e.width * maxWidth) ) //height
+        Math.ceil((SAMPLE_COUNT / BUCKET_COUNT) / (MAX_HEIGHT * e.width / maxWidth) ) //height
       )
     });
     start += e.width/totalWidth
