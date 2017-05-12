@@ -5,6 +5,16 @@ var SAMPLE_COUNT = BUCKET_COUNT*1000
 var buckets = new Array(BUCKET_COUNT)
 var bucketDivs
 
+function createQuarticSample() {
+  var sample = Math.random() * BUCKET_COUNT * BUCKET_COUNT * BUCKET_COUNT * BUCKET_COUNT;
+  return Math.sqrt(Math.sqrt(sample))
+}
+
+function createSqrtSample() {
+  var sample = Math.random() * Math.sqrt(BUCKET_COUNT)
+  return sample * sample
+}
+
 for (var i = 0; i < BUCKET_COUNT; i++) {
   buckets[i] = {
     width: 1,
@@ -14,8 +24,8 @@ for (var i = 0; i < BUCKET_COUNT; i++) {
 
 for (var k = 0; k < GENERATIONS; k++) {
   for (var i = 0; i < SAMPLE_COUNT; i++) {
-  var s = Math.random() * Math.sqrt(BUCKET_COUNT);
-  var sample = s * s
+  var sample = createQuarticSample()
+  //var sample = createSqrtSample()
 	for (var j = 0; j < BUCKET_COUNT; j++) {
 	  sample -= buckets[j].width
 	  if (sample <= 0) {
@@ -60,6 +70,7 @@ window.onload = function() {
   var MAX_HEIGHT = 100
   var start = 0
   var totalWidth = buckets.reduce(function (a, e) { return a + e.width }, 0)
+  var maxWidth = Math.max.apply(null, buckets.map(function (e) { return e.width }))
   bucketDivs = buckets.map(function(e, i) {
     console.log(start, start + e.width / totalWidth)
     var div = $("<div>", {
@@ -67,7 +78,7 @@ window.onload = function() {
       style: produceStyle(
         Math.ceil(start * MAX_WIDTH), //left side
         Math.ceil((start + e.width / totalWidth) * MAX_WIDTH), //right side
-        Math.ceil((SAMPLE_COUNT / BUCKET_COUNT) / (10 * e.width) ) //height
+        Math.ceil((SAMPLE_COUNT / BUCKET_COUNT) / (e.width * maxWidth) ) //height
       )
     });
     start += e.width/totalWidth
