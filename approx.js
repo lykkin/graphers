@@ -29,37 +29,37 @@ for (var i = 0; i < BUCKET_COUNT; i++) {
 
 for (var k = 0; k < GENERATIONS; k++) {
   for (var i = 0; i < SAMPLE_COUNT; i++) {
-  var sample = createQuarticSample()
-  //var sample = createSquareSample()
-  //var sample = createSqrtSample()
-	for (var j = 0; j < BUCKET_COUNT; j++) {
-	  sample -= buckets[j].width
-	  if (sample <= 0) {
-		buckets[j].count++
-		break
-	  }
-	}	
+    var sample = createQuarticSample()
+    //var sample = createSquareSample()
+    //var sample = createSqrtSample()
+    for (var j = 0; j < BUCKET_COUNT; j++) {
+      sample -= buckets[j].width
+      if (sample <= 0) {
+        buckets[j].count++
+        break
+      }
+    }	
   }
   var timeTotal = 0
   var sampleTotal = 0
   var average = SAMPLE_COUNT/BUCKET_COUNT
   for (var i = 0; i < BUCKET_COUNT; i++) {
     var bucket = buckets[i]
-	if (bucket.count > average) {
-	  sampleTotal += bucket.count - average
-	  var oldWidth = bucket.width
-	  bucket.width = bucket.width * average / bucket.count
-	  timeTotal += oldWidth - bucket.width
-	}
+    if (bucket.count > average) {
+      sampleTotal += bucket.count - average
+      var oldWidth = bucket.width
+      bucket.width = bucket.width * average / bucket.count
+      timeTotal += oldWidth - bucket.width
+    }
   }
   var timePerSample = timeTotal/sampleTotal
   for (var i = 0; i < BUCKET_COUNT; i++) {
     var bucket = buckets[i]
-	if (bucket.count < average) {
-	  bucket.width += (average - bucket.count) * timePerSample
-	}
+    if (bucket.count < average) {
+      bucket.width += (average - bucket.count) * timePerSample
+    }
   }
-  
+
   for (var i = 0; i < BUCKET_COUNT; i++) {
     buckets[i].count = 0
   }
