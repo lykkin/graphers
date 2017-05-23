@@ -1,6 +1,6 @@
-var BUCKET_COUNT = 100
+var BUCKET_COUNT = 1000
 var GENERATIONS = 10
-var SAMPLE_COUNT = BUCKET_COUNT*1000
+var SAMPLE_COUNT = BUCKET_COUNT*10000
 
 var buckets = new Array(BUCKET_COUNT)
 var bucketDivs
@@ -23,22 +23,33 @@ function createSqrtSample() {
 for (var i = 0; i < BUCKET_COUNT; i++) {
   buckets[i] = {
     width: 1,
+    start: i,
     count: 0
+  }
+}
+
+function incrementBucket(buckets, sample, start, end) {
+  if (end - start <= 1) {
+    if (buckets[end].start > sample) {
+      return buckets[start].count++
+    }
+    return buckets[end].count++
+  }
+  var middle = Math.ceil((end - start) / 2)
+  var middleBucket = buckets[start + middle]
+  if (middleBucket.start > sample) {
+    incrementBucket(buckets, sample, start, start + middle)
+  } else {
+    incrementBucket(buckets, sample, start + middle, end)
   }
 }
 
 for (var k = 0; k < GENERATIONS; k++) {
   for (var i = 0; i < SAMPLE_COUNT; i++) {
-    //var sample = createQuarticSample()
-    var sample = createSquareSample()
+    var sample = createQuarticSample()
+    //var sample = createSquareSample()
     //var sample = createSqrtSample()
-    for (var j = 0; j < BUCKET_COUNT; j++) {
-      sample -= buckets[j].width
-      if (sample <= 0) {
-        buckets[j].count++
-        break
-      }
-    }	
+    incrementBucket(buckets, sample, 0, buckets.length - 1)
   }
   var timeTotal = 0
   var sampleTotal = 0
@@ -60,7 +71,10 @@ for (var k = 0; k < GENERATIONS; k++) {
     }
   }
 
+  var totalToPoint = 0
   for (var i = 0; i < BUCKET_COUNT; i++) {
+    buckets[i].start = totalToPoint
+    totalToPoint += buckets[i].width
     buckets[i].count = 0
   }
 }
@@ -70,35 +84,26 @@ for (var i = 0; i < BUCKET_COUNT; i++) {
   x += buckets[i].width
 }
 
-window.onload = function() {
-  var container = $('#container')
-  var MAX_WIDTH = 1000
-  var MAX_HEIGHT = 100
-  var start = 0
-  var height = 0
-  var totalWidth = buckets.reduce(function (a, e) { return a + e.width }, 0)
-  var maxWidth = Math.max.apply(null, buckets.map(function (e) { return e.width }))
-  bucketDivs = buckets.map(function(e, i) {
-    console.log(start, start + e.width / totalWidth)
-    height += Math.ceil((SAMPLE_COUNT / BUCKET_COUNT) / (MAX_HEIGHT * MAX_HEIGHT * e.width))
-    var div = $("<div>", {
-      class: 'bar',
-      style: produceStyle(
-        Math.ceil(start * MAX_WIDTH), //left side
-        Math.ceil((start + e.width / totalWidth) * MAX_WIDTH), //right side
-        height
-      )
-    });
-    start += e.width/totalWidth
-    return div
-  })
-  console.log(buckets.map(function (a) {return a.width}))
-  container.append(bucketDivs)
-}
 
-function produceStyle(horiStart, horiEnd, vert) {
-  return [
-    "grid-row: 1 / " + (vert + 1),
-    "grid-column: " + (horiStart + 1) + " / " + (horiEnd + 1)
-  ].join(';')
+window.onload = function() {
+  chart = new Chart($('#myChart'), {
+    type: 'line',
+    data: {
+      datasets: [{
+        label: '1/bucket width',
+        data: buckets.map((e, i) => {
+          return {x: e.start, y: 1/e.width}
+        })
+      }]
+    },
+    options: {
+        scales: {
+            xAxes: [{
+                type: 'linear',
+                position: 'bottom'
+            }]
+        }
+    }
+  })
+  console.log(buckets.map((e) => e.width))
 }
